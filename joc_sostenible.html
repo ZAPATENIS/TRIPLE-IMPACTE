@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRIPLE IMPACTE: ECO-CHAMPION</title>
+    <style>
+        :root {
+            --bg-grad: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
+            --card-bg: #ffffff;
+            --primary: #27ae60;
+            --accent: #e67e22;
+            --text: #2c3e50;
+        }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg-grad); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: var(--card-bg); padding: 40px; border-radius: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); width: 95%; max-width: 500px; text-align: center; transition: all 0.5s ease; }
+        
+        .fade-in { animation: fadeIn 0.8s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .progress-box { margin: 20px 0; text-align: left; }
+        .bar-wrap { height: 12px; background: #eee; border-radius: 6px; overflow: hidden; margin-top: 5px; }
+        .bar { height: 100%; transition: width 0.5s ease; }
+        
+        button { background: var(--text); color: white; border: none; padding: 15px 25px; margin: 10px 0; border-radius: 12px; cursor: pointer; width: 100%; font-size: 16px; font-weight: 600; transition: transform 0.2s, background 0.3s; }
+        button:hover { transform: scale(1.03); background: var(--primary); }
+
+        .result-screen { font-size: 1.2rem; }
+        .grade { font-size: 3rem; font-weight: bold; color: var(--primary); }
+    </style>
+</head>
+<body>
+
+<div class="container" id="app">
+    <div id="start-screen">
+        <h1>TRIPLE IMPACTE</h1>
+        <p>El teu consum té conseqüències.</p>
+        <button onclick="game.start()">▶ JUGAR</button>
+        <button onclick="alert('Llegeix les situacions i pren la decisió més sostenible. El teu objectiu és mantenir l\'equilibri entre Planeta, Diners i Societat.')">ℹ COM ES JUGA</button>
+    </div>
+
+    <div id="game-screen" class="hidden" style="display:none;">
+        <div class="progress-box">
+            <div>🌍 Planeta <div class="bar-wrap"><div id="bar-p" class="bar" style="background: #27ae60; width: 100%;"></div></div></div>
+            <div>💰 Economia <div class="bar-wrap"><div id="bar-m" class="bar" style="background: #f39c12; width: 100%;"></div></div></div>
+            <div>🤝 Social <div class="bar-wrap"><div id="bar-s" class="bar" style="background: #3498db; width: 100%;"></div></div></div>
+        </div>
+        <h2 id="q-text">Carregant...</h2>
+        <div id="btn-container"></div>
+    </div>
+</div>
+
+<script>
+const game = {
+    stats: { p: 100, m: 100, s: 100 },
+    index: 0,
+    questions: [
+        { q: "El teu mòbil es trenca. Què fas?", op1: ["Reparar-lo", 15, -10, 10], op2: ["Comprar l'últim model", -20, -50, 5] },
+        { q: "T'inviten a un fast-food. Què fas?", op1: ["Cuinar a casa amb producte local", 20, 10, 5], op2: ["Anar al fast-food", -15, -10, -5] },
+        { q: "Tens molta roba. Què en fas?", op1: ["Donar-la a ONG", 10, 0, 15], op2: ["Llençar-la a les escombraries", -20, 0, -10] },
+        { q: "Escollir mitjà de transport...", op1: ["Bicicleta o caminant", 15, 10, 5], op2: ["Cotxe privat", -20, -15, -5] },
+        { q: "Compra de fruita al mercat...", op1: ["A granel (sense plàstic)", 15, 0, 5], op2: ["Embolicada en plàstic", -15, 0, -5] },
+        { q: "Calefacció a casa...", op1: ["Posar-me una manta", 10, 5, 0], op2: ["Posar-la al màxim", -15, -10, 0] },
+        { q: "Regal d'aniversari...", op1: ["Un llibre o experiència", 10, -5, 10], op2: ["Objecte de plàstic barato", -10, -15, -5] },
+        { q: "Què fas amb l'oli de cuina?", op1: ["Portar-lo al punt verd", 10, 0, 5], op2: ["Llençar-lo a la pica", -20, 0, -5] },
+        { q: "Il·luminació...", op1: ["Canviar a bombetes LED", 10, -5, 5], op2: ["Deixar les velles", -5, 5, 0] },
+        { q: "Productes d'higiene...", op1: ["Xampú sòlid (sense envàs)", 15, -5, 5], op2: ["Botelles de plàstic", -10, 5, -5] },
+        { q: "Viatge de vacances...", op1: ["Viatjar en tren per prop", 10, -10, 5], op2: ["Viatjar en avió lluny", -20, -20, 5] },
+        { q: "Aigua a la dutxa...", op1: ["Tancar l'aixeta mentre m'ensabono", 15, 5, 0], op2: ["Dutxa llarga oberta", -15, -5, 0] },
+        { q: "Estudiar sobre sostenibilitat...", op1: ["Llegir articles sobre l'ODS 12", 5, 0, 10], op2: ["Ignorar-ho", 0, 0, -5] },
+        { q: "Residus tecnològics...", op1: ["Reciclar piles/cables", 15, 0, 5], op2: ["Llençar-los al rebuig", -20, 0, -5] },
+        { q: "Participar en activisme...", op1: ["Unir-me a un grup verd", 10, -5, 20], op2: ["Mantenir-me al marge", 0, 0, -5] }
+    ],
+
+    start() {
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'block';
+        this.render();
+    },
+
+    render() {
+        if(this.index >= this.questions.length || this.stats.p <= 0) {
+            this.showResults();
+            return;
+        }
+        const q = this.questions[this.index];
+        document.getElementById('q-text').innerText = q.q;
+        const container = document.getElementById('btn-container');
+        container.innerHTML = '';
+        
+        [ {txt: "Opció A: "+q.op1[0], vals: [q.op1[1], q.op1[2], q.op1[3]]}, {txt: "Opció B: "+q.op2[0], vals: [q.op2[1], q.op2[2], q.op2[3]]} ].forEach(op => {
+            const b = document.createElement('button');
+            b.innerText = op.txt;
+            b.className = "fade-in";
+            b.onclick = () => this.update(op.vals);
+            container.appendChild(b);
+        });
+    },
+
+    update(vals) {
+        this.stats.p = Math.min(100, Math.max(0, this.stats.p + vals[0]));
+        this.stats.m = Math.min(100, Math.max(0, this.stats.m + vals[1]));
+        this.stats.s = Math.min(100, Math.max(0, this.stats.s + vals[2]));
+        
+        document.getElementById('bar-p').style.width = this.stats.p + '%';
+        document.getElementById('bar-m').style.width = this.stats.m + '%';
+        document.getElementById('bar-s').style.width = this.stats.s + '%';
+        
+        this.index++;
+        this.render();
+    },
+
+    showResults() {
+        const avg = (this.stats.p + this.stats.m + this.stats.s) / 3;
+        let grade = avg > 80 ? "A+" : avg > 60 ? "B" : "C";
+        document.getElementById('game-screen').innerHTML = `
+            <div class="result-screen fade-in">
+                <h2>Resultats Finals</h2>
+                <div class="grade">${grade}</div>
+                <p>La teva puntuació mitjana és de ${Math.round(avg)}%.</p>
+                <button onclick="location.reload()">TORNA A COMENÇAR</button>
+            </div>
+        `;
+    }
+};
+</script>
+</body>
+</html>
